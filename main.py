@@ -1,4 +1,4 @@
-#CENG-487 Assignment-3
+#CENG-487 Assignment-4
 # 320201105 HAMMET POLAT
 #05/2025
 
@@ -11,7 +11,7 @@ from renderer3d import Renderer
 from tkinter import filedialog
 import sys
 
-instructions = "\n0:To add obj from file\n1:Cube\n2:Plane\n3:Pyramid\n4:Sphere 1\n5:Sphere 2\n6:Tetrahedron\n\n+:Increase the number of grids\n-:Decrease the number of grids\nalt+left mouse: Rotate\nalt+right mouse: Zoom in-out\nf: Reset to original camera matrix\nwasd: Moves camera\nqe: Moves alon z axis"
+instructions = "\n0:To add obj from file\n1:Cube\n2:Plane\n3:Pyramid\n4:Sphere 1\n5:Sphere 2\n6:Tetrahedron\n\n+:Increase the number of grids\n-:Decrease the number of grids\nc: Makes lines vis/unvis\nalt+left mouse: Rotate\nalt+right mouse: Zoom in-out\nf: Reset to original camera matrix\nwasd: Moves camera\nqe: Moves alon z axis\nHit ESC key to quit."
 ESCAPE = b'\x1b'
 
 
@@ -164,8 +164,6 @@ def keyPressed(*args):
 
         fileObj.setVertexes(vertex)
         fileObj.setFaces(faces)
-        print(fileObj.getVertexes())
-        print(fileObj.getFaces())
         # Lock the previous object
         arr[current_index].locked()
 
@@ -184,6 +182,7 @@ def keyPressed(*args):
         b'6': ('triangle', 5),
     }
 
+
     if key in object_map:
         new_object, new_index = object_map[key]
         arr[current_index].locked()
@@ -198,7 +197,9 @@ def keyPressed(*args):
     elif key == b'-':
         for obj in arr:
             obj.dec_a()
-
+    elif key== b'c':
+        for obj in arr:
+            obj.changeLines()
     elif key == b'f':
         Object3D.resetCam(0, 0, 0.0001)
     elif key == b'w':
@@ -269,7 +270,7 @@ def main():
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
 
     # get a 640 x 480 window
-    glutInitWindowSize(640, 480)
+    glutInitWindowSize(780, 560)
 
     # the window starts at the upper left corner of the screen
     glutInitWindowPosition(0, 0)
@@ -301,6 +302,5 @@ def main():
 
 
 # Print message to console, and kick off the main to get it rolling.
-print("Hit ESC key to quit.")
 main()
 

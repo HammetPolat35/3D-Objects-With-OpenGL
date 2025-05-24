@@ -1,4 +1,4 @@
-#CENG-487 Assignment-3
+#CENG-487 Assignment-4
 # 320201105 HAMMET POLAT
 #05/2025
 
@@ -29,6 +29,8 @@ class Object3D:
         self.face=None
         self.vertex=None
 
+        self.lines=False
+
     def locked(self):
         self.lock=False
     def unlocked(self):
@@ -41,6 +43,12 @@ class Object3D:
     def dec_a(self):
         if self.lock and self.a>0:
             self.a=self.a-1
+
+    def changeLines(self):
+        self.lines=not self.lines
+
+    def getLines(self):
+        return self.lines
 
     def setTransformOrder(self, order_str):#default transform order   !!!!!TSR çalışmıyor
         self.transform_order = order_str
@@ -123,16 +131,25 @@ class Object3D:
     def makeParse(self):
         vertex = self.getVertexes()
         faces = self.getFaces()
+        subFaces=[]
+        for face in faces:
+            f0 = vertex[face[0]]
+            f1 = vertex[face[1]]
+            f2 = vertex[face[2]]
+            f3 = vertex[face[3]]
+            subFaces.append([f0,f1,f2,f3])
+
         a = self.get_a()
-        print(faces)
-        print(vertex)
-        self.arrParser = Geo.parser(vertex, faces, a)
-        return self.arrParser
+        # we take the orignal faces and their coordinates as a list
+        self.catmullClarkParse = Geo.catmullClark(subFaces,a)
+
+        return self.catmullClarkParse
 
 
 
     def draw(self,arr):
-        Geo.drawObject(arr)
+        line=self.getLines()
+        Geo.drawObject(arr,line)
 
     def setVertexes(self,x):
         self.vertex=x

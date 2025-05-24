@@ -1,4 +1,4 @@
-#CENG-487 Assignment-3
+#CENG-487 Assignment-4
 # 320201105 HAMMET POLAT
 #05/2025
 
@@ -130,34 +130,161 @@ class Geo:
         return arrSqu
 
     @staticmethod
-    def parser(vertex, faces, a):
+    def catmullClark(subFaceArr,a):         #subFaceArr holds the every face and their vertices info
         from object3d import Object3D
-        arrParser = []
+        if a==0:
+            for i in range(len(subFaceArr)):
+                for j in range(len(subFaceArr[i])):
+                    subFaceArr[i][j]=Vec3d(subFaceArr[i][j])
+                subFaceArr[i]=Object3D(subFaceArr[i])
+
+
+            return subFaceArr
+        else:
+            return Geo.pointMaker(subFaceArr,a-1)
+
+
+
+    @staticmethod
+    def pointMaker(subFacesArr,a):  #subFacesArr holds the original points
+        subEdges = []
+        subNewFacesArr=[]
+        subFaces = []
+        def faceCalc(faceArr):
+            xVal, yVal, zVal = 0, 0, 0
+            xVal += faceArr[0][0] + faceArr[1][0] + faceArr[2][0] + faceArr[3][0]
+            yVal += faceArr[0][1] + faceArr[1][1] + faceArr[2][1] + faceArr[3][1]
+            zVal += faceArr[0][2] + faceArr[1][2] + faceArr[2][2] + faceArr[3][2]
+            return [xVal / 4, yVal / 4, zVal / 4]
+
+        def edgeCalc(edgeArr):
+            xVal, yVal, zVal = 0, 0, 0
+
+            xVal += edgeArr[0][0] + edgeArr[1][0]
+            yVal += edgeArr[0][1] + edgeArr[1][1]
+            zVal += edgeArr[0][2] + edgeArr[1][2]
+            return [xVal / 2, yVal / 2, zVal / 2]
+
+        for i in range(len(subFacesArr)):
+            v0 = subFacesArr[i][0]
+            v1 = subFacesArr[i][1]
+            v2 = subFacesArr[i][2]
+            v3 = subFacesArr[i][3]
+
+
+            vMid = faceCalc([v0,v1,v2,v3])
+            edge0 = edgeCalc(sorted([v0, v1]))
+            edge1 = edgeCalc(sorted([v1, v2]))
+            edge2 = edgeCalc(sorted([v2, v3]))
+            edge3 = edgeCalc(sorted([v3, v0]))
+
+
+
+            subFaces.append([v0,v1,v2,v3,vMid])
+            subEdges.extend([[edge0, [v0, v1]], [edge1, [v1, v2]],[edge2, [v2, v3]], [edge3, [v3, v0]]])
+
+            f0 = [v0, edge0, vMid, edge3]
+            f1 = [v1,edge1,vMid,edge0]
+            f2 = [v2,edge2,vMid,edge1]
+            f3 = [v3,edge3,vMid,edge2]
+            subNewFacesArr.append(f0)
+            subNewFacesArr.append(f1)
+            subNewFacesArr.append(f2)
+            subNewFacesArr.append(f3)
+
+        for i in range(len(subEdges)):
+            e0=subEdges[i][1][0]
+            e1=subEdges[i][1][1]
+            for face in subFaces:
+                vertices = face[:4]
+                if e0 in vertices and e1 in vertices:
+                    face_point = face[4]
+                    subEdges[i].append(face_point)
+
+        for i in range(len(subNewFacesArr)):
+            e1 = subNewFacesArr[i][1]
+            e3 = subNewFacesArr[i][3]
+            face1 = [0, 0, 0]
+            face3 = [0, 0, 0]
+
+            for j in range(len(subEdges)):
+                if e1 == subEdges[j][0]:
+                    face1 = [face1[k] + subEdges[j][2][k] for k in range(3)]
+
+                if e3 == subEdges[j][0]:
+                    face3 = [face3[k] + subEdges[j][2][k] for k in range(3)]
+
+            e1_updated = [(face1[k] + 2*e1[k]) / 4 for k in range(3)]
+            e3_updated = [(face3[k] + 2*e3[k]) / 4 for k in range(3)]
+
+            subNewFacesArr[i][1] = e1_updated
+            subNewFacesArr[i][3] = e3_updated
+
+        for i in range(len(subNewFacesArr)):
+            n=0
+            edge=[0,0,0]
+            face = [0, 0, 0]
+            org_point = subNewFacesArr[i][0]
+            for j in range(len(subFaces)):
+                for k in range(4):
+                    if subFaces[j][k]==org_point:
+                        face = [face[k] + subFaces[j][4][k] for k in range(3)]
+                        #print(face)
+                        n+=1
+                        #print(n)
+            face = [coord / n for coord in face]
+
+            for j in range(len(subEdges)):
+                if subEdges[j][1][0]==org_point or subEdges[j][1][1]==org_point:
+                    edge = [edge[k] + subEdges[j][0][k] for k in range(3)]
+
+            edge = [coord / n for coord in edge]
+
+               #this is valence now
+
+            x = (face[0] + edge[0] + (n - 3) * org_point[0]) / n
+            y = (face[1] + edge[1] + (n - 3) * org_point[1]) / n
+            z = (face[2] + edge[2] + (n - 3) * org_point[2]) / n
+            subNewFacesArr[i][0] = [x, y, z]
+
+
+        return Geo.catmullClark(subNewFacesArr,a)
+
+
+    @staticmethod
+    def parser(faces,a=1):
+
+
+        subFacesArr = []
 
 
         for face in faces:
             #generic quad parser
             #work logic: It calculates what should be the next point based on the distance diffrence to next vertex respect j and k (j is the vertex which is not adjacent to our vertex and k is the next one counter clockwise)
-            v0 = Vec3d(vertex[face[0]])  # top left
-            v1 = Vec3d(vertex[face[1]])  # top right
-            v2 = Vec3d(vertex[face[2]])  # bottom right
-            v3 = Vec3d(vertex[face[3]])  # bottom left
+
+
+            f0 = faces[face[0]]
+            f1 = faces[face[1]]
+            f2 = faces[face[2]]
+            f3 = faces[face[3]]
 
             for j in range(2**a):
                 for k in range(2**a):
-                    s0 = k / 2**a
-                    s1 = (k + 1) / 2**a
-                    t0 = j / 2**a
-                    t1 = (j + 1) / 2**a
+                    s0 = k / 2**a#**a
+                    s1 = (k + 1) / 2**a#**a
+                    t0 = j / 2**a#**a
+                    t1 = (j + 1) / 2**a#**a
 
-                    p00 = Vec3d.interpolate_bilinear(v0, v1, v2, v3, s0, t0)
-                    p10 = Vec3d.interpolate_bilinear(v0, v1, v2, v3, s1, t0)
-                    p11 = Vec3d.interpolate_bilinear(v0, v1, v2, v3, s1, t1)
-                    p01 = Vec3d.interpolate_bilinear(v0, v1, v2, v3, s0, t1)
+                    v0 = Vec3d.interpolate_bilinear(Vec3d(f0), Vec3d(f1), Vec3d(f2), Vec3d(f3), s0, t0)
+                    v1 = Vec3d.interpolate_bilinear(Vec3d(f0), Vec3d(f1), Vec3d(f2), Vec3d(f3), s1, t0)
+                    v2 = Vec3d.interpolate_bilinear(Vec3d(f0), Vec3d(f1), Vec3d(f2), Vec3d(f3), s1, t1)
+                    v3 = Vec3d.interpolate_bilinear(Vec3d(f0), Vec3d(f1), Vec3d(f2), Vec3d(f3), s0, t1)
 
-                    arrParser.append(Object3D([p00, p10, p11, p01]))
+                    #print(v0.x())
+                    new_face=[v0, v1, v2, v3]
 
-        return arrParser
+                    subFacesArr.append(new_face)#subdivided objects faces and faces vertexes                   Object3D([v0, v1, v2, v3])
+        return subFacesArr
 
     @staticmethod
     def makePyramid(a):
@@ -348,7 +475,7 @@ class Geo:
         return arrSphere
 
     @staticmethod
-    def drawObject(arrObj):
+    def drawObject(arrObj,lines):
         for i in range(len(arrObj)):
             face = arrObj[i]
             vertices = face.getVertices()
@@ -373,17 +500,17 @@ class Geo:
                 glVertex3f(transformed.x(), transformed.y(), transformed.z())
             glEnd()
 
+            if lines:
+                glColor3f(1.0, 1.0, 1.0)
+                glBegin(GL_LINE_LOOP if num_vertices == 3 else GL_LINE_STRIP)
+                for vertex in vertices:
+                    transformed = cam.returnViewMatrix().matrixVecMult(vertex)
+                    glVertex3f(transformed.x(), transformed.y(), transformed.z())
 
-            glColor3f(1.0, 1.0, 1.0)
-            glBegin(GL_LINE_LOOP if num_vertices == 3 else GL_LINE_STRIP)
-            for vertex in vertices:
-                transformed = cam.returnViewMatrix().matrixVecMult(vertex)
-                glVertex3f(transformed.x(), transformed.y(), transformed.z())
-
-            if num_vertices == 4:
-                transformed = cam.returnViewMatrix().matrixVecMult(vertices[0])
-                glVertex3f(transformed.x(), transformed.y(), transformed.z())
-            glEnd()
+                if num_vertices == 4:
+                    transformed = cam.returnViewMatrix().matrixVecMult(vertices[0])
+                    glVertex3f(transformed.x(), transformed.y(), transformed.z())
+                glEnd()
 
     @staticmethod
     def resetGeoCam(x,y,z):

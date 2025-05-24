@@ -1,4 +1,4 @@
-#CENG-487 Assignment-3
+#CENG-487 Assignment-4
 # 320201105 HAMMET POLAT
 #05/2025
 
@@ -91,17 +91,6 @@ class Vec3d:
         y = y_top + (y_bottom - y_top) * t
         z = z_top + (z_bottom - z_top) * t
 
-        return Vec3d([x, y, z])
-
-
-
-
-
-
-
-
-
-
-
+        return [x, y, z]
 
 
