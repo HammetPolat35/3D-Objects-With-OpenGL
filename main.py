@@ -1,5 +1,4 @@
-#CENG-487 Assignment-4
-# 320201105 HAMMET POLAT
+#HAMMET POLAT
 #05/2025
 
 from OpenGL.GL import *
