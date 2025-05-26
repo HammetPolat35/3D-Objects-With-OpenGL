@@ -475,7 +475,33 @@ class Geo:
         return arrSphere
 
     @staticmethod
+    def drawGrid(grid_size=50,y=-1):
+        glColor3f(1.0, 1.0, 0.3)
+        glBegin(GL_LINES)
+        for i in range(-grid_size, grid_size + 1):
+            start = cam.returnViewMatrix().matrixVecMult(Vec3d([-grid_size, y, i ]))
+            end = cam.returnViewMatrix().matrixVecMult(Vec3d([grid_size, y, i ]))
+            glVertex3f(start.x(), start.y(), start.z())
+            glVertex3f(end.x(), end.y(), end.z())
+
+            start = cam.returnViewMatrix().matrixVecMult(Vec3d([i, y, -grid_size]))
+            end = cam.returnViewMatrix().matrixVecMult(Vec3d([i , y, grid_size]))
+            glVertex3f(start.x(), start.y(), start.z())
+            glVertex3f(end.x(), end.y(), end.z())
+        glEnd()
+
+    @staticmethod
+    def drawLines(vertices):
+        glColor3f(1.0, 1.0, 1.0)
+        glBegin(GL_LINE_STRIP)
+        for vertex in vertices:
+            transformed = cam.returnViewMatrix().matrixVecMult(vertex)
+            glVertex3f(transformed.x(), transformed.y(), transformed.z())
+
+        glEnd()
+    @staticmethod
     def drawObject(arrObj,lines):
+        Geo.drawGrid()
         for i in range(len(arrObj)):
             face = arrObj[i]
             vertices = face.getVertices()
@@ -501,16 +527,8 @@ class Geo:
             glEnd()
 
             if lines:
-                glColor3f(1.0, 1.0, 1.0)
-                glBegin(GL_LINE_LOOP if num_vertices == 3 else GL_LINE_STRIP)
-                for vertex in vertices:
-                    transformed = cam.returnViewMatrix().matrixVecMult(vertex)
-                    glVertex3f(transformed.x(), transformed.y(), transformed.z())
+                Geo.drawLines(vertices)
 
-                if num_vertices == 4:
-                    transformed = cam.returnViewMatrix().matrixVecMult(vertices[0])
-                    glVertex3f(transformed.x(), transformed.y(), transformed.z())
-                glEnd()
 
     @staticmethod
     def resetGeoCam(x,y,z):
