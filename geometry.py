@@ -534,6 +534,9 @@ class Geo:
     def resetGeoCam(x,y,z):
         cam.changeCamPos(x, y, z)
         cam.lookInto(0.0,0.0,-8.0)
+        cam.azimuth=0
+        cam.elevation=0
+        cam.radius=8
     @staticmethod
     def rotateAround(x,y):
         cam.rotateAround(x,y)

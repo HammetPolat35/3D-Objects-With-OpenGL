@@ -4,7 +4,6 @@
 
 from mat3d import Mat3d
 from vec3d import Vec3d
-#from object3d import Object3D
 import numpy as np
 from math import pi,sin,cos,sqrt,acos
 
@@ -86,12 +85,24 @@ class Cam3D:
         self.returnViewMatrix()
 
     def changeLookInto(self,x,y,z):
-        self.target.na[0] = self.target.x() + x
-        self.target.na[1] = self.target.y() + y
-        self.target.na[2] = self.target.z() + z
-        self.cam.na[0] = self.cam.x() + x
-        self.cam.na[1] = self.cam.y() + y
-        self.cam.na[2] = self.cam.z() + z
+        #Same logic with rotate around but now we create a coordinate system around the cam not the object.  This is for FPS camera.
+
+        forward = Vec3d([
+            cos(self.elevation) * sin(self.azimuth),
+            sin(self.elevation),
+            cos(self.elevation) * cos(self.azimuth),
+            0.0
+        ]).normalize()
+        right = forward.cross(self.mock_up).normalize()
+        up = right.cross(forward).normalize()
+
+
+        self.target.na[0] = self.target.x() + right.scale(x).x() + up.scale(y).x() + forward.scale(z).x()
+        self.target.na[1] = self.target.y() + right.scale(x).y() + up.scale(y).y() + forward.scale(z).y()
+        self.target.na[2] = self.target.z() + right.scale(x).z() + up.scale(y).z() + forward.scale(z).z()
+        self.cam.na[0] = self.cam.x() + right.scale(x).x() + up.scale(y).x() + forward.scale(z).x()
+        self.cam.na[1] = self.cam.y() + right.scale(x).y() + up.scale(y).y() + forward.scale(z).y()
+        self.cam.na[2] = self.cam.z() + right.scale(x).z() + up.scale(y).z() + forward.scale(z).z()
         self.radius = np.sqrt(self.cam.x() ** 2 + self.cam.y() ** 2 + (self.cam.z()+8) ** 2)
         self.calcAgain()
 

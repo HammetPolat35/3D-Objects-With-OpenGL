@@ -201,15 +201,15 @@ def keyPressed(*args):
         for obj in arr:
             obj.changeLines()
     elif key == b'f':
-        Object3D.resetCam(0, 0, 0.0001)
+        Object3D.resetCam(0, 0,0.0)
     elif key == b'w':
         Object3D.changeLookInto(0,0.5,0)
     elif key == b's':
         Object3D.changeLookInto(0,-0.5,0)
     elif key == b'a':
-        Object3D.changeLookInto(-0.5,0,0)
-    elif key == b'd':
         Object3D.changeLookInto(0.5,0,0)
+    elif key == b'd':
+        Object3D.changeLookInto(-0.5,0,0)
     elif key == b'q':
         Object3D.changeLookInto(0.0,0,-0.5)
     elif key == b'e':
@@ -270,7 +270,7 @@ def main():
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
 
     # get a 640 x 480 window
-    glutInitWindowSize(780, 560)
+    glutInitWindowSize(1080, 720)
 
     # the window starts at the upper left corner of the screen
     glutInitWindowPosition(0, 0)
