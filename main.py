@@ -10,7 +10,7 @@ from renderer3d import Renderer
 from tkinter import filedialog
 import sys
 
-instructions = "\n0:To add obj from file\n1:Cube\n2:Plane\n3:Pyramid\n4:Sphere 1\n5:Sphere 2\n6:Tetrahedron\n\n+:Increase the number of grids\n-:Decrease the number of grids\nc: Makes lines vis/unvis\nalt+left mouse: Rotate\nalt+right mouse: Zoom in-out\nf: Reset to original camera matrix\nwasd: Moves camera\nqe: Moves alon z axis\nHit ESC key to quit."
+instructions = "\n0:To add obj from file\n1:Cube\n2:Plane\n3:Pyramid\n4:Sphere 1\n5:Sphere 2\n6:Tetrahedron\n\n+:Increase the number of grids\n-:Decrease the number of grids\nc: Makes lines vis/unvis\nalt+left mouse: Rotate\nalt+right mouse: Zoom in-out\nf: Reset to original camera matrix\nwasdqe: FPS Camera Movements\nHit ESC key to quit."
 ESCAPE = b'\x1b'
 
 
