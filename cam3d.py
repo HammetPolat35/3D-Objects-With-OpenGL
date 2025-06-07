@@ -44,6 +44,7 @@ class Cam3D:
 
     def changeCamPos(self,x,y,z):
         self.radius = np.sqrt(x ** 2 + y ** 2 + (z+8) ** 2)
+        self.radius = (Vec3d([x,y,z,0]) - self.target).__length__()
         self.cam=Vec3d([x,y,z,0])
         self.calcAgain()
 
@@ -64,27 +65,34 @@ class Cam3D:
         self.cam = Vec3d([x, y, z, 0])
 
         # Move the camera to be centered around (0, 0, -8)
-        self.cam = self.cam + Vec3d([0, 0, -8, 0])
+        self.cam = self.cam + self.target
 
         # Recalculate view matrix based on the new camera position
         self.calcAgain()
 
     def dragZ(self, z):
         self.cam = self.cam + self.look_dir.scale(z/100)
-        self.radius = sqrt(self.cam.na[0] ** 2 + self.cam.na[1] ** 2 + (self.cam.na[2]+8) ** 2)
+        self.radius = (self.cam - self.target).__length__()
         self.calcAgain()
 
-
     def calcAgain(self):
-        self.look_dir = self.target.__sub__(self.cam).normalize()
-        self.horizon = self.look_dir.cross(self.mock_up).normalize()
+        direction = self.target - self.cam
+        if direction.__length__() < 1e-6:
+            print("Warning: cam and target are too close — skipping update to avoid crash.")
+            return
+
+        self.look_dir = direction.normalize()
+
+        cross = self.look_dir.cross(self.mock_up)
+        if cross.__length__() < 1e-6:
+            cross = Vec3d([1.0, 0.0, 0.0, 0.0])  # fallback horizon
+        self.horizon = cross.normalize()
         self.up = self.horizon.cross(self.look_dir).normalize()
 
-        #calc the matrix
         self.returnViewMatrix()
 
     def changeLookInto(self,x,y,z):
-        #Same logic with rotate around but now we create a coordinate system around the cam not the object.  This is for FPS camera.
+        #Same logic with rotate around.  This is for FPS camera.
 
         forward = Vec3d([
             cos(self.elevation) * sin(self.azimuth),
@@ -102,8 +110,9 @@ class Cam3D:
         self.cam.na[0] = self.cam.x() + right.scale(x).x() + up.scale(y).x() + forward.scale(z).x()
         self.cam.na[1] = self.cam.y() + right.scale(x).y() + up.scale(y).y() + forward.scale(z).y()
         self.cam.na[2] = self.cam.z() + right.scale(x).z() + up.scale(y).z() + forward.scale(z).z()
-        self.radius = np.sqrt(self.cam.x() ** 2 + self.cam.y() ** 2 + (self.cam.z()+8) ** 2)
+        self.radius = (self.cam - self.target).__length__()
         self.calcAgain()
+
 
 
 
