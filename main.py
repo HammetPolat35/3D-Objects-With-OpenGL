@@ -210,9 +210,9 @@ def keyPressed(*args):
     elif key == b'd':
         Object3D.changeLookInto(-0.5,0,0)
     elif key == b'q':
-        Object3D.changeLookInto(0.0,0,-0.5)
-    elif key == b'e':
         Object3D.changeLookInto(0.0,0,0.5)
+    elif key == b'e':
+        Object3D.changeLookInto(0.0,0,-0.5)
     else:
         print(f"{key}")
 
