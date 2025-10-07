@@ -1,5 +1,6 @@
 #HAMMET POLAT
 #05/2025
+import os.path
 
 from OpenGL.GL import *
 from OpenGL.GLUT import *
@@ -137,9 +138,12 @@ def keyPressed(*args):
 
     if key == b'\x1b':
         glutLeaveMainLoop()
-
+    script_dir=os.path.dirname(os.path.abspath(__file__))
+    default_folder=os.path.join(script_dir,"Objects")
     if key == b'0':
-        filePath = filedialog.askopenfilename()
+        filePath = filedialog.askopenfilename(
+            initialdir=default_folder
+        )
         if not filePath:
             return  # user cancelled
 
